@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
 
-interface Cashier {
+interface User {
   id: number;
   username: string;
   fl_name: string;
@@ -15,38 +15,37 @@ interface Cashier {
 }
 
 export default function LoginForm() {
-  const [cashiers, setCashiers] = useState<Cashier[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [selectedUsername, setSelectedUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fetchAttempted, setFetchAttempted] = useState(false); // New state variable
+  const [fetchAttempted, setFetchAttempted] = useState(false);
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    const getCashiers = async () => {
+    const getUsers = async () => {
       try {
-        const response = await axios.get<Cashier[]>(
-          "http://localhost/phpdata/cashiers.php"
+        const response = await axios.get<User[]>(
+          "http://localhost/phpdata/users.php"
         );
         console.log(response.data);
-        setCashiers(response.data);
+        setUsers(response.data);
       } catch (error) {
-        console.error("There was an error fetching the cashiers!", error);
-        setError("Unable to fetch cashier data.");
+        console.error("There was an error fetching the users!", error);
+        setError("Unable to fetch user data.");
       } finally {
-        setFetchAttempted(true); // Set to true after fetch attempt
+        setFetchAttempted(true);
       }
     };
 
-    getCashiers();
+    getUsers();
   }, [toast]);
 
   useEffect(() => {
-    // Focus the username input on component mount
     if (usernameRef.current) {
       usernameRef.current.focus();
     }
@@ -73,9 +72,12 @@ export default function LoginForm() {
         localStorage.setItem("role", response.data.role);
         localStorage.setItem("id", response.data.id);
 
-        router.push(
-          `/pos?username=${selectedUsername}&fullname=${response.data.fullname}`
-        );
+        const role = response.data.role;
+        if (role === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/pos");
+        }
       } else {
         toast({
           title: "Login failed",
@@ -103,7 +105,7 @@ export default function LoginForm() {
       if (usernameRef.current) {
         usernameRef.current.focus();
       }
-    }, 100); // Timeout to allow the UI to update
+    }, 100);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
