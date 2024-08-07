@@ -1,18 +1,12 @@
 <?php
 $servername = "localhost";
-$dbname = "pos_system"; // The name of your database
-$db_username = "your_user"; // Your MySQL username
-$db_password = "your_password"; // Your MySQL password
+$db_username = "root"; // replace with your MySQL username
+$db_password = ""; // replace with your MySQL password (empty in this case)
+$dbname = "pos_system"; // the name of your database
 
-// Create connection
 $conn = new mysqli($servername, $db_username, $db_password, $dbname);
 
-// Check connection
 if ($conn->connect_error) {
-    error_log("Database connection failed: " . $conn->connect_error);
-    echo json_encode(["status" => "error", "message" => "Database connection failed"]);
-    exit;
+    die("Connection failed: " . $conn->connect_error);
 }
-
-// Debug: Check if connection is successful
-error_log("Database connection established");
+?>
